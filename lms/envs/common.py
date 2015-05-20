@@ -1997,6 +1997,7 @@ INSTALLED_APPS = (
     'xblock_django',
 
     # Bookmarks
+    'openedx.core.djangoapps.bookmarks',
     'bookmarks',
 
     # programs support
