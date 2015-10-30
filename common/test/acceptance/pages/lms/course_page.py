@@ -56,6 +56,7 @@ class CoursePage(PageObject):
         Checks to make sure the skip link skips to its href
         and the container receives focus.
         """
+        from nose.tools import set_trace; set_trace()
         skip_link = self.q(css=".nav-skip")
         skip_url = skip_link.attrs('href')[0]
         skip_id = skip_url.split('/')[-1]
