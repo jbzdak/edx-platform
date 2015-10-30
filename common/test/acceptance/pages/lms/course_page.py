@@ -60,7 +60,6 @@ class CoursePage(PageObject):
         skip_url = skip_link.attrs('href')[0]
         skip_id = skip_url.split('/')[-1]
         focusable_link = '$(".nav-skip").css({ "top": 0 }).focus()'
-        from nose.tools import set_trace; set_trace()
         self.browser.execute_script(focusable_link)
         skip_link.click()
         self.wait_for(
