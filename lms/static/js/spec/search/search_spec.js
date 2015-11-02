@@ -400,7 +400,6 @@ define([
 
             function showsLoadingMessage () {
                 this.resultsView.showLoadingMessage();
-                console.log('showsLoadingMessage');
                 expect(this.resultsView.$contentElement).toBeHidden();
                 expect(this.resultsView.$el).toBeVisible();
                 expect(this.resultsView.$el).not.toBeEmpty();
