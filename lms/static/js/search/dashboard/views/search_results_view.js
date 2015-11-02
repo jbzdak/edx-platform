@@ -9,7 +9,7 @@ define([
     return SearchResultsView.extend({
 
         el: '#dashboard-search-results',
-        contentElement: '#my-courses, #profile-sidebar',
+        contentElement: '#content, #profile-sidebar',
         resultsTemplateId: '#dashboard_search_results-tpl',
         loadingTemplateId: '#search_loading-tpl',
         errorTemplateId: '#search_error-tpl',
