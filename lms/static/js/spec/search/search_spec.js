@@ -488,9 +488,9 @@ define([
             function beforeEachHelper(SearchResultsView) {
                 appendSetFixtures(
                     '<section id="courseware-search-results"></section>' +
-                    '<section id="content"></section>' +
+                    '<section id="course-content"></section>' +
                     '<section id="dashboard-search-results"></section>' +
-                    '<section id="content"></section>'
+                    '<section id="my-courses"></section>'
                 );
 
                 TemplateHelpers.installTemplates([
@@ -674,14 +674,14 @@ define([
                     loadFixtures('js/fixtures/search/course_search_form.html');
                     appendSetFixtures(
                         '<section id="courseware-search-results"></section>' +
-                        '<section id="content"></section>'
+                        '<section id="course-content"></section>'
                     );
                     loadTemplates.call(this);
 
                     var courseId = 'a/b/c';
                     CourseSearchFactory(courseId);
                     spyOn(Backbone.history, 'navigate');
-                    this.$contentElement = $('#content');
+                    this.$contentElement = $('#course-content');
                     this.$searchResults = $('#courseware-search-results');
                 });
 
@@ -700,20 +700,15 @@ define([
 
                 beforeEach(function () {
                     loadFixtures('js/fixtures/search/dashboard_search_form.html');
-                    // appendSetFixtures(
-                    //     '<section id="dashboard-search-results"></section>' +
-                    //     '<section id="my-courses"></section>'
-                    // );
                     appendSetFixtures(
                         '<section id="dashboard-search-results"></section>' +
-                        '<section id="content"></section>'
+                        '<section id="my-courses"></section>'
                     );
                     loadTemplates.call(this);
                     DashboardSearchFactory();
 
                     spyOn(Backbone.history, 'navigate');
-                    // this.$contentElement = $('#my-courses');
-                    this.$contentElement = $('#content');
+                    this.$contentElement = $('#my-courses');
                     this.$searchResults = $('#dashboard-search-results');
                 });
 

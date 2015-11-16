@@ -18,6 +18,7 @@ import json
 
 <%block name="pagetitle">${_("Dashboard")}</%block>
 <%block name="bodyclass">view-dashboard is-authenticated</%block>
+<%block name="nav_skip">#my-courses</%block>
 
 <%block name="header_extras">
 % for template_name in ["donation"]:
@@ -74,7 +75,7 @@ import json
 </div>
 
 <section class="container dashboard" id="dashboard-main">
-  <section class="my-courses" id="my-content">
+  <section class="my-courses" id="my-courses">
     <header class="wrapper-header-courses">
       <h2 class="header-courses">${_("My Courses")}</h2>
     </header>
