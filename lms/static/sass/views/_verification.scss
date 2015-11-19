@@ -175,6 +175,14 @@
     color: $white !important;
   }
 
+  // elements - controls
+  .action-primary-blue {
+    @extend %btn-primary-blue;
+    // needed for override due to .register a:link styling
+    border: 0 !important;
+    color: $white !important;
+  }
+
   .action-confirm {
     @extend %btn-verify-primary;
     // needed for override due to .register a:link styling
@@ -821,6 +829,95 @@
 
     // indiv slides - review
     #wrapper-review {
+
+      .page-title {
+          border-bottom: 2px solid #cccccc;
+          padding-bottom: 15px;
+          margin-bottom: 20px;
+          font-weight: bold;
+        }
+
+      .review {
+       border-bottom: 2px solid #cccccc;
+
+
+      .certificate {
+        font-size: 18px;
+        background-repeat: no-repeat;
+	    padding-left: 60px;
+	    overflow: hidden;
+	    min-height: 32px;
+
+          p {
+	        margin-top: 0;
+            line-height: 22px;
+          }
+
+          .purchase {
+            float: right;
+            margin-left: 15px;
+            text-align: right;
+
+            .product-info {
+             color: blue;
+            }
+        }
+
+        &.verified_icon {
+          background-image: url('#{$static-path}/images/icon-sm-verified.png');
+        }
+
+        &.no-id-professional_icon, &.professional_icon {
+          background-image: url('#{$static-path}/images/icon-sm-professional.png');
+        }
+      }
+
+      .payment-buttons {
+        overflow: auto;
+        margin-bottom: 15px;
+        margin-top: 10px;
+      }
+    }
+
+      .container {
+        padding: 15px 0;
+
+        p {
+          line-height: 22px;
+        }
+        .photo-requirement {
+          position: relative;
+          padding-left: 50px;
+          margin-top: 15px;
+          font-size: 12px;
+          background-repeat: no-repeat;
+          background-position: left top;
+
+            h6 {
+              margin-bottom: 5px;
+              font-weight: bolds;
+            }
+
+          &:before {
+            content: " ";
+            position: absolute;
+            left: 0;
+            top: 2px;
+            font-family: 'FontAwesome';
+            font-size: 20px;
+            color: #ccc;
+          }
+          &.cam_icon:before {
+            content: "\f03d";
+          }
+          &.user_icon:before {
+            content: "\f007";
+          }
+        }
+      }
+
+
+
 
       .review-task {
         margin-bottom: ($baseline*1.5);
