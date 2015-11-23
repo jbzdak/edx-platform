@@ -97,7 +97,7 @@ define(
             $.cookie(COOKIE_NAME, JSON.stringify({
                 file: file,
                 date: moment().valueOf(),
-                completed: completed || false
+                completed: completed || false,
             }), {path: window.location.pathname});
         };
 
@@ -207,6 +207,28 @@ define(
         };
 
         /********** Public functions ******************************************/
+        /**
+         * Filtered all stored cookies
+         *
+         * @param {string} name of the cookie to filter
+         * @result {array} list of filtered cookies
+         */
+        var filter_cookies = function (cookie_name) {
+            var filtered_cookies = [];
+            if (document.cookie && document.cookie != '') {
+                var split = document.cookie.split(';');
+                $.each(split,  function(index, raw_cookie){
+                    var name_value = raw_cookie.split("=");
+                    if (name_value[0].indexOf(cookie_name) != -1){
+                        var filter_cookie = {};
+                        name_value[0] = name_value[0].replace(/^ /, '');
+                        filter_cookie[name_value[0]] = JSON.parse(decodeURIComponent(name_value[1]));
+                        filtered_cookies.push(filter_cookie);
+                    }
+                });
+            }
+            return filtered_cookies;
+        };
 
         var CourseImport = {
 
@@ -320,7 +342,14 @@ define(
              * @return {JSON} the data of the previous import
              */
             storedImport: function () {
-                return JSON.parse($.cookie(COOKIE_NAME));
+                var import_cookie ;
+                $.each(filter_cookies(COOKIE_NAME), function(key, stored_cookie) {
+                    var cookie_file_url = stored_cookie[COOKIE_NAME].file.url;
+                    if(cookie_file_url.indexOf(course.id) != -1){
+                        import_cookie = stored_cookie[COOKIE_NAME];
+                    }
+                });
+                 return import_cookie;
             }
         };
 
