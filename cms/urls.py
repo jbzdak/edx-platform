@@ -3,6 +3,11 @@ from django.conf.urls import patterns, include, url
 
 # There is a course creators admin table.
 from ratelimitbackend import admin
+
+from cms.djangoapps.contentstore.views.program import ProgramAuthoringView
+from openedx.core.djangoapps.programs.models import ProgramsApiConfig
+
+
 admin.autodiscover()
 
 # Pattern to match a course key or a library key
@@ -201,6 +206,12 @@ handler500 = 'contentstore.views.render_500'
 
 # display error page templates, for testing purposes
 urlpatterns += (
-    url(r'404', handler404),
-    url(r'500', handler500),
+    url(r'^404$', handler404),
+    url(r'^500$', handler500),
 )
+
+if ProgramsApiConfig.current().is_studio_tab_enabled:
+    urlpatterns += (
+        # Drops into the Programs authoring app, which handles its own routing.
+        url(r'^program/*', ProgramAuthoringView.as_view(), name='program-authoring'),
+    )

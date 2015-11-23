@@ -1,0 +1,16 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%inherit file="base.html" />
+<%block name="title">${_("Program Authoring")}</%block>
+
+<%block name="header_extras">
+<script src=${authoring_app_config.css_url}></script>
+</%block>
+
+<%block name="content">
+<div class="js-program-admin program-app layout-1q3q layout-reversed" data-api-url=${programs_api_url} data-home-url=${studio_home_url}></div>
+</%block>
+
+<%block name="jsextra">
+<script src=${authoring_app_config.js_url}></script>
+</%block>
