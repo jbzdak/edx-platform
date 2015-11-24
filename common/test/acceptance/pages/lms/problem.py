@@ -71,11 +71,13 @@ class ProblemPage(PageObject):
             description="MathJax rendered in hint"
         )
 
-    def fill_answer(self, text):
+    def fill_answer(self, text, input_num=None):
         """
         Fill in the answer to the problem.
         """
-        self.q(css='div.problem div.capa_inputtype.textline input').fill(text)
+        fields = self.q(css='div.problem div.capa_inputtype.textline input')
+        fields = fields.nth(input_num) if not input_num==None else fields
+        fields.fill(text)
 
     def fill_answer_numerical(self, text):
         """

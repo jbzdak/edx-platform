@@ -14,15 +14,16 @@ from ...fixtures.course import CourseFixture, XBlockFixtureDesc
 from ..helpers import EventsTestMixin
 
 
-class ProblemsTest(UniqueCourseTest):
+class ProblemsTest(UniqueCourseTest, EventsTestMixin):
     """
     Base class for tests of problems in the LMS.
     """
-    USERNAME = "joe_student"
-    EMAIL = "joe@example.com"
 
     def setUp(self):
         super(ProblemsTest, self).setUp()
+
+        username = "test_{uuid}".format(uuid=self.unique_id[0:8])
+        email = "{}@example.com".format(username)
 
         self.xqueue_grade_response = None
 
@@ -42,7 +43,7 @@ class ProblemsTest(UniqueCourseTest):
         ).install()
 
         # Auto-auth register for the course.
-        AutoAuthPage(self.browser, username=self.USERNAME, email=self.EMAIL,
+        AutoAuthPage(self.browser, username=username, email=email,
                      course_id=self.course_id, staff=False).visit()
 
     def get_problem(self):
@@ -91,7 +92,7 @@ class ProblemClarificationTest(ProblemsTest):
         self.assertNotIn('strong', tooltip_text)
 
 
-class ProblemExtendedHintTest(ProblemsTest, EventsTestMixin):
+class ProblemExtendedHintTest(ProblemsTest):
     """
     Test that extended hint features plumb through to the page html and tracking log.
     """
@@ -166,7 +167,7 @@ class ProblemExtendedHintTest(ProblemsTest, EventsTestMixin):
             actual_events)
 
 
-class ProblemHintWithHtmlTest(ProblemsTest, EventsTestMixin):
+class ProblemHintWithHtmlTest(ProblemsTest):
     """
     Tests that hints containing html get rendered properly
     """
