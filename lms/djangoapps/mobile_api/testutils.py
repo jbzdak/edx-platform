@@ -86,12 +86,13 @@ class MobileAPITestCase(ModuleStoreTestCase, APITestCase):
 
     def reverse_url(self, reverse_args=None, **kwargs):  # pylint: disable=unused-argument
         """Base implementation that returns URL for endpoint that's being tested."""
-        reverse_args = reverse_args or {}
+        final_reverse_args = {}
         if 'course_id' in self.REVERSE_INFO['params']:
-            reverse_args.update({'course_id': unicode(kwargs.get('course_id', self.course.id))})
+            final_reverse_args.update({'course_id': unicode(kwargs.get('course_id', self.course.id))})
         if 'username' in self.REVERSE_INFO['params']:
-            reverse_args.update({'username': kwargs.get('username', self.user.username)})
-        return reverse(self.REVERSE_INFO['name'], kwargs=reverse_args)
+            final_reverse_args.update({'username': kwargs.get('username', self.user.username)})
+        final_reverse_args.update(reverse_args or {})
+        return reverse(self.REVERSE_INFO['name'], kwargs=final_reverse_args)
 
     def url_method(self, url, **kwargs):  # pylint: disable=unused-argument
         """Base implementation that returns response from the GET method of the URL."""
