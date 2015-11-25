@@ -215,11 +215,11 @@ define(
          */
         var filter_cookies = function (cookie_name) {
             var filtered_cookies = [];
-            if (document.cookie && document.cookie != '') {
+            if (document.cookie && document.cookie !== '') {
                 var split = document.cookie.split(';');
                 $.each(split,  function(index, raw_cookie){
                     var name_value = raw_cookie.split("=");
-                    if (name_value[0].indexOf(cookie_name) != -1){
+                    if (name_value[0].indexOf(cookie_name) !== -1){
                         var filter_cookie = {};
                         name_value[0] = name_value[0].replace(/^ /, '');
                         filter_cookie[name_value[0]] = JSON.parse(decodeURIComponent(name_value[1]));
@@ -342,10 +342,11 @@ define(
              * @return {JSON} the data of the previous import
              */
             storedImport: function () {
+                var course_or_library_id = window.location.pathname.replace('/import/', '');
                 var import_cookie ;
                 $.each(filter_cookies(COOKIE_NAME), function(key, stored_cookie) {
                     var cookie_file_url = stored_cookie[COOKIE_NAME].file.url;
-                    if(cookie_file_url.indexOf(course.id) != -1){
+                    if(cookie_file_url.indexOf(course_or_library_id) !== -1){
                         import_cookie = stored_cookie[COOKIE_NAME];
                     }
                 });
