@@ -66,6 +66,7 @@ from bson.objectid import ObjectId
 
 from xblock.core import XBlock
 from xblock.fields import Scope, Reference, ReferenceList, ReferenceValueDict
+from xmodule.course_module import CourseSummaryDescriptor
 from xmodule.errortracker import null_error_tracker
 from opaque_keys.edx.locator import (
     BlockUsageLocator, DefinitionLocator, CourseLocator, LibraryLocator, VersionTree, LocalId,
@@ -932,6 +933,36 @@ class SplitMongoModuleStore(SplitBulkWriteMixin, ModuleStoreWriteBase):
         """
         # get the blocks for each course index (s/b the root)
         return self._get_structures_for_branch_and_locator(branch, self._create_course_locator, **kwargs)
+
+    @autoretry_read()
+    def get_courses_summary(self, branch, **kwargs):
+        """
+         Returns a list of course information which includes `display_name` and `locator` of a
+        course which matching any given qualifiers.
+
+        qualifiers should be a dict of keywords matching the db fields or any
+        legal query for mongo to use against the active_versions collection.
+
+        Note, this is to find the current head of the named branch type.
+        To get specific versions via guid use get_course.
+
+        :param branch: the branch for which to return courses.
+        """
+        courses_summaries = []
+        for entry, structure_info in self._get_structures_for_branch(branch, **kwargs):
+            course_locator = self._create_course_locator(structure_info, branch=None)
+            course_block = [
+                block_data
+                for block_key, block_data in entry['blocks'].items()
+                if block_key.type == "course"
+            ]
+            if not course_block:
+                raise ItemNotFoundError
+
+            courses_summaries.append(
+                CourseSummaryDescriptor(ModuleStoreEnum.Type.split, course_block[0], course_locator)
+            )
+        return courses_summaries
 
     def get_libraries(self, branch="library", **kwargs):
         """

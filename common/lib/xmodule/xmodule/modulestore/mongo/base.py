@@ -39,6 +39,7 @@ from xblock.fields import Scope, ScopeIds, Reference, ReferenceList, ReferenceVa
 from xblock.runtime import KvsFieldData
 
 from xmodule.assetstore import AssetMetadata, CourseAssetsFromStorage
+from xmodule.course_module import CourseSummaryDescriptor
 from xmodule.error_module import ErrorDescriptor
 from xmodule.errortracker import null_error_tracker, exc_info_to_str
 from xmodule.exceptions import HeartbeatFailure
@@ -978,6 +979,30 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         apply_cached_metadata = category not in _DETACHED_CATEGORIES and \
             not (category == 'course' and depth == 0)
         return apply_cached_metadata
+
+    @autoretry_read()
+    def get_courses_summary(self, **kwargs):
+        '''
+        Returns a list of course information which includes `display_name` and `locator` of a
+        course. This accepts an optional parameter of 'org' which will apply an efficient
+        filter to only get courses with the specified ORG
+        '''
+        course_org_filter = kwargs.get('org')
+        meta_only = {'metadata': True}
+
+        if course_org_filter:
+            course_records = self.collection.find({'_id.category': 'course', '_id.org': course_org_filter}, meta_only)
+        else:
+            course_records = self.collection.find({'_id.category': 'course'}, meta_only)
+
+        courses_summaries = []
+        for course in course_records:
+            if not (course['_id']['org'] == 'edx' and course['_id']['course'] == 'templates'):
+                locator = SlashSeparatedCourseKey(course['_id']['org'], course['_id']['course'], course['_id']['name'])
+                courses_summaries.append(
+                    CourseSummaryDescriptor(ModuleStoreEnum.Type.mongo, course, locator)
+                )
+        return courses_summaries
 
     @autoretry_read()
     def get_courses(self, **kwargs):

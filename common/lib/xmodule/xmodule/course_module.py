@@ -14,6 +14,7 @@ from lazy import lazy
 from xmodule import course_metadata_utils
 from xmodule.course_metadata_utils import DEFAULT_START_DATE
 from xmodule.exceptions import UndefinedContext
+from xmodule.modulestore import ModuleStoreEnum
 from xmodule.seq_module import SequenceDescriptor, SequenceModule
 from xmodule.graders import grader_from_conf
 from xmodule.tabs import CourseTabList, InvalidTabsException
@@ -1601,3 +1602,71 @@ class CourseDescriptor(CourseFields, SequenceDescriptor, LicenseMixin):
           bool: False if the course has already started, True otherwise.
         """
         return datetime.now(UTC()) <= self.start
+
+
+class CourseSummaryDescriptor(object):
+    """
+    A lightweight course summary class, which parses split/mongo course information without loading
+    the course. It is used at studios' homepage.
+    """
+
+    def __init__(self, store, course_structure, course_locator):
+        """
+        Initialize and parse the `course_structure`
+        """
+        self.default_display_name = "Empty"
+        self.display_name = None
+        self.display_coursenumber = None
+        self.display_organization = None
+        self.course_info_fields = ['display_name', 'display_coursenumber', 'display_organization']
+
+        self.course_structure = course_structure
+
+        self.id = course_locator  # pylint: disable=invalid-name
+        self.location = course_locator.make_usage_key('course', 'course')
+
+        # Identify the store and extract course summary
+        if store == ModuleStoreEnum.Type.mongo:
+            self.extract_course_summary_for_mongo()
+        elif store == ModuleStoreEnum.Type.split:
+            self.extract_course_summary_split()
+
+        # If `display_name` isn't present in the XML, use the `default_display_name`
+        if not hasattr(self, 'display_name'):
+            self.display_name = self.default_display_name
+
+    def extract_course_summary_for_mongo(self):
+        """
+        Extract course information from the course block.
+        `display_coursenumber` and `display_organization` are used to display course.display_foo_with_default
+        """
+        for field in self.course_info_fields:
+            if field in self.course_structure['metadata']:
+                setattr(self, field, self.course_structure['metadata'][field])
+
+    def extract_course_summary_split(self):
+        """
+        Extract course information from the course block.
+            `display_coursenumber` and `display_organization` are used to display course.display_foo_with_default
+        """
+        for field in self.course_info_fields:
+            if field in self.course_structure.fields:
+                setattr(self, field, self.course_structure.fields[field])
+
+    @property
+    def display_org_with_default(self):
+        """
+        Return a display organization if it has been specified, otherwise return the 'org' that is in the location
+        """
+        if self.display_organization:
+            return self.display_organization
+        return self.location.org
+
+    @property
+    def display_number_with_default(self):
+        """
+        Return a display course number if it has been specified, otherwise return the 'course' that is in the location
+        """
+        if self.display_coursenumber:
+            return self.display_coursenumber
+        return self.location.course

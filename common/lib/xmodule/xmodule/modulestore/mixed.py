@@ -266,6 +266,23 @@ class MixedModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase):
         return store.get_items(course_key, **kwargs)
 
     @strip_key
+    def get_courses_summary(self, **kwargs):
+        """
+        Returns a list of dict containing the course information like, `location`, `display_name`
+         `locator` of the courses in this modulestore.
+
+        """
+        course_summaries = {}
+        for store in self.modulestores:
+            # filter out ones which were fetched from earlier stores but locations may not be ==
+            for course_summary in store.get_courses_summary(**kwargs):
+                course_id = self._clean_locator_for_mapping(locator=course_summary.id)
+                if course_id not in course_summaries:
+                    # course is indeed unique. save it in result
+                    course_summaries[course_id] = course_summary
+        return course_summaries.values()
+
+    @strip_key
     def get_courses(self, **kwargs):
         '''
         Returns a list containing the top level XModuleDescriptors of the courses in this modulestore.
