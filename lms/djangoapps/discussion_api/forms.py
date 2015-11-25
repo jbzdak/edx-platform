@@ -9,11 +9,48 @@ from django.forms import (
     Form,
     IntegerField,
     NullBooleanField,
-)
+    Select)
 
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.locator import CourseLocator
 from openedx.core.djangoapps.util.forms import MultiValueField
+
+
+class ExtendedNullBooleanField(NullBooleanField):
+    """
+    A field whose valid values are None, True, 'True', 'true', '1',
+    False, 'False', 'false' and '0'.
+    """
+
+    NULL_BOOLEAN_CHOICES = (
+        (None, ""),
+        (True, True),
+        (True, "True"),
+        (True, "true"),
+        (True, "1"),
+        (False, False),
+        (False, "False"),
+        (False, "false"),
+        (False, "0"),
+    )
+
+    widget = Select(choices=NULL_BOOLEAN_CHOICES)
+
+    def to_python(self, value):
+        """
+        Explicitly checks for the string 'True', 'False', 'true',
+        'false', '1' and '0' and returns boolean True or False.
+        Returns None if value is not passed at all and raises an
+        an exception for any other value.
+        """
+        if value in (True, 'True', 'true', '1'):
+            return True
+        elif value in (False, 'False', 'false', '0'):
+            return False
+        elif not value:
+            return None
+        else:
+            raise ValidationError("Invalid Boolean Value.")
 
 
 class _PaginationForm(Form):
@@ -39,7 +76,7 @@ class ThreadListGetForm(_PaginationForm):
     course_id = CharField()
     topic_id = MultiValueField(required=False)
     text_search = CharField(required=False)
-    following = NullBooleanField(required=False)
+    following = ExtendedNullBooleanField(required=False)
     view = ChoiceField(
         choices=[(choice, choice) for choice in ["unread", "unanswered"]],
         required=False,
@@ -106,9 +143,7 @@ class CommentListGetForm(_PaginationForm):
     A form to validate query parameters in the comment list retrieval endpoint
     """
     thread_id = CharField()
-    # TODO: should we use something better here? This only accepts "True",
-    # "False", "1", and "0"
-    endorsed = NullBooleanField(required=False)
+    endorsed = ExtendedNullBooleanField(required=False)
 
 
 class CommentActionsForm(Form):
