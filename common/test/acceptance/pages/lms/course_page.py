@@ -6,6 +6,7 @@ from bok_choy.page_object import PageObject
 from bok_choy.promise import EmptyPromise
 from . import BASE_URL
 from .tab_nav import TabNavPage
+from selenium.webdriver.common.keys import Keys
 
 
 class CoursePage(PageObject):
@@ -54,15 +55,16 @@ class CoursePage(PageObject):
     def ensure_skip_link_sends_focus_to_container(self):
         """
         Checks to make sure the skip link skips to its href
-        and the container receives focus.
+        and the container receives focus by Tabbing to the
+        skip link and pressing Enter, like an actual scenario.
         """
-        # import ipdb; ipdb.set_trace()
+        import ipdb; ipdb.set_trace()
         skip_link = self.q(css=".nav-skip")
         skip_url = skip_link.attrs('href')[0]
         skip_id = skip_url.split('/')[-1]
-        focusable_link = '$(".nav-skip").css({ "top": 0, "height": "auto", "width": "auto", "clip": "auto", "position": "relative" }).focus()'
-        self.browser.execute_script(focusable_link)
-        skip_link.click()
+        body = self.q(css="body").results[0]
+        body.send_keys(Keys.TAB)
+        body.send_keys(Keys.ENTER)
         self.wait_for(
             self.q(css=skip_id).is_focused, "Main content area is focusable", timeout=5
         )
