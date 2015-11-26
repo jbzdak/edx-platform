@@ -41,8 +41,8 @@ class MobileAPITestCase(ModuleStoreTestCase, APITestCase):
        REVERSE_INFO = {'name': <django reverse name>, 'params': [<list of params in the URL>]}
     They may also override any of the methods defined in this class to control the behavior of the TestMixins.
     """
-    def setUp(self):
-        super(MobileAPITestCase, self).setUp()
+    def setUp(self, *args):
+        super(MobileAPITestCase, self).setUp(*args)
         self.course = CourseFactory.create(mobile_available=True, static_asset_path="needed_for_split")
         self.user = UserFactory.create()
         self.password = 'test'

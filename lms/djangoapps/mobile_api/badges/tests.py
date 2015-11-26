@@ -73,6 +73,7 @@ class TestUserBadgeAssertions(MobileAPITestCase, MobileAuthUserTestMixin, UrlRes
     """
     REVERSE_INFO = {'name': 'user-assertions', 'params': ['username']}
 
+    @patch.dict("django.conf.settings.FEATURES", {"ENABLE_OPENBADGES": True})
     def setUp(self):
         super(TestUserBadgeAssertions, self).setUp()
 
@@ -106,6 +107,7 @@ class TestUserCourseBadgeAssertions(MobileAPITestCase, MobileAuthUserTestMixin, 
     """
     REVERSE_INFO = {'name': 'user-course-assertions', 'params': ['username', 'course_id']}
 
+    @patch.dict("django.conf.settings.FEATURES", {"ENABLE_OPENBADGES": True})
     def setUp(self):
         super(TestUserCourseBadgeAssertions, self).setUp()
 
@@ -149,6 +151,7 @@ class TestUserBadgeAssertionsByClass(MobileAPITestCase, UrlResetMixin, UserAsser
     """
     REVERSE_INFO = {'name': 'user-class-assertions', 'params': ['username', 'issuing_component', 'slug']}
 
+    @patch.dict("django.conf.settings.FEATURES", {"ENABLE_OPENBADGES": True})
     def setUp(self):
         super(TestUserBadgeAssertionsByClass, self).setUp()
 
@@ -237,6 +240,7 @@ class TestBadgeClass(MobileAPITestCase, UrlResetMixin, UserAssertionMixin):
     """
     REVERSE_INFO = {'name': 'badge_class-detail', 'params': ['issuing_component', 'slug']}
 
+    @patch.dict("django.conf.settings.FEATURES", {"ENABLE_OPENBADGES": True})
     def setUp(self):
         super(TestBadgeClass, self).setUp()
 
