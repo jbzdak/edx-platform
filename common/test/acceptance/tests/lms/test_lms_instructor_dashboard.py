@@ -779,7 +779,42 @@ class CertificatesTest(BaseInstructorDashboardTest):
         self.certificates_section.wait_for_ajax()
 
         self.assertIn(
-            'Student (username/email={}) does not exist'.format(invalid_user),
+            "We can't find the user you've entered. Make sure the username or email address is correct, "
+            "then try again.",
+            self.certificates_section.message.text
+        )
+
+    def test_user_not_enrolled_error(self):
+        """
+        Scenario: On the Certificates tab of the Instructor Dashboard,
+        Error message appears if user is not enrolled in the course while trying to add a new exception.
+
+            Given that I am on the Certificates tab on the Instructor Dashboard
+            When I click on 'Add Exception' button
+            AND student is not enrolled in the course
+            Then Error Message should say
+                "The user you have entered is not enrolled in this course.
+                Make sure the username or email address is correct, then try again."
+        """
+        new_user = 'test_user_{uuid}'.format(uuid=self.unique_id[6:12])
+        new_email = 'test_user_{uuid}@example.com'.format(uuid=self.unique_id[6:12])
+        # Create a new user who is not enrolled in the course
+        AutoAuthPage(self.browser, username=new_user, email=new_email).visit()
+        # Login as instructor and visit Certificate Section of Instructor Dashboard
+        self.user_name, self.user_id = self.log_in_as_instructor()
+        self.instructor_dashboard_page.visit()
+        self.certificates_section = self.instructor_dashboard_page.select_certificates()
+
+        # Click 'Add Exception' button with invalid username/email field
+        self.certificates_section.wait_for_certificate_exceptions_section()
+
+        self.certificates_section.fill_user_name_field(new_user)
+        self.certificates_section.click_add_exception_button()
+        self.certificates_section.wait_for_ajax()
+
+        self.assertIn(
+            "The user you have entered is not enrolled in this course. "
+            "Make sure the username or email address is correct, then try again.",
             self.certificates_section.message.text
         )
 

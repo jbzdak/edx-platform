@@ -2743,7 +2743,7 @@ def certificate_exception_view(request, course_id):
     course_key = CourseKey.from_string(course_id)
     # Validate request data and return error response in case of invalid data
     try:
-        certificate_exception, student = parse_request_data_and_get_user(request)
+        certificate_exception, student = parse_request_data_and_get_user(request, course_key)
     except ValueError as error:
         return JsonResponse({'success': False, 'message': error.message}, status=400)
 
@@ -2827,7 +2827,7 @@ def remove_certificate_exception(course_key, student):
     certificate_exception.delete()
 
 
-def parse_request_data_and_get_user(request):
+def parse_request_data_and_get_user(request, course_key):
     """
         Parse request data into Certificate Exception and User object.
         Certificate Exception is the dict object containing information about certificate exception.
@@ -2846,7 +2846,13 @@ def parse_request_data_and_get_user(request):
     try:
         db_user = get_user_by_username_or_email(user)
     except ObjectDoesNotExist:
-        raise ValueError(_('Student (username/email={user}) does not exist').format(user=user))
+        raise ValueError(_("We can't find the user you've entered. Make sure the username or email address is correct,"
+                           " then try again."))
+
+    # Make Sure the given student is enrolled in the course
+    if not CourseEnrollment.is_enrolled(db_user, course_key):
+        raise ValueError(_("The user you have entered is not enrolled in this course. "
+                           "Make sure the username or email address is correct, then try again."))
 
     return certificate_exception, db_user
 
