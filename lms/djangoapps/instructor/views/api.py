@@ -12,7 +12,7 @@ import re
 import time
 import requests
 from django.conf import settings
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.views.decorators.http import require_POST, require_http_methods
 from django.views.decorators.cache import cache_control
 from django.core.exceptions import ValidationError, PermissionDenied
@@ -2910,3 +2910,98 @@ def generate_certificate_exceptions(request, course_id, generate_for=None):
     }
 
     return JsonResponse(response_payload)
+
+
+USER_INDEX = 0
+NOTES_INDEX = 1
+
+
+@csrf_exempt
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+@require_global_staff
+@require_POST
+def generate_bulk_certificate_exceptions(request, course_id):  # pylint: disable=invalid-name
+    """
+    Add Students to certificate white list from the uploaded csv file.
+    """
+    course_key = CourseKey.from_string(course_id)
+    students, warnings, errors, success = ([] for __ in range(4))
+    if 'students_list' in request.FILES:
+        try:
+            upload_file = request.FILES.get('students_list')
+            if upload_file.name.endswith('.csv'):
+                students = [row for row in csv.reader(upload_file.read().splitlines())]
+            else:
+                errors.append({
+                    'response': _('-- Make sure that the file you upload is in CSV format with no '
+                                  'extraneous characters or rows.')
+                })
+
+        except Exception:  # pylint: disable=broad-except
+            errors.append({
+                'response': _('-- Could not read uploaded file.')
+            })
+        finally:
+            upload_file.close()
+
+        row_num = 0
+        for student in students:
+            row_num += 1
+            # verify that we have exactly two column in every row either email or username and notes but allow for
+            # blank lines
+            if len(student) != 2:
+                if len(student) > 0:
+                    errors.append({
+                        'response': _('-- Data in row# {num} must have exactly two columns, '
+                                      'either an email or a username and notes.').format(num=row_num)
+                    })
+                    log.info(u'invalid data/format in csv row# %s', row_num)
+                continue
+            user = student[USER_INDEX]
+            try:
+                db_user = get_user_by_username_or_email(user)
+            except ObjectDoesNotExist:
+                errors.append({'response': _('-- user (username/email={user}) does not exist.').format(user=user)})
+                log.info(u'student %s does not exist', user)
+            else:
+                if len(CertificateWhitelist.get_certificate_white_list(course_key, db_user)) > 0:
+                    warnings.append({
+                        'response': _("-- user '{username}' in row# {row} is already in certificate exceptions "
+                                      "list.").format(username=db_user.username, row=row_num)
+                    })
+                    log.warning(u'student %s already exist.', db_user.username)
+
+                # make sure user is enrolled in course
+                elif not CourseEnrollment.is_enrolled(db_user, course_key):
+                    warnings.append({
+                        'response': _("-- user '{username}' in row# {row} is not enrolled in course.").format(
+                            username=db_user.username, row=row_num
+                        )
+                    })
+                    log.warning(u'student %s is not enrolled in course.', db_user.username)
+
+                else:
+                    CertificateWhitelist.objects.create(
+                        user=db_user,
+                        course_id=course_key,
+                        whitelist=True,
+                        notes=student[NOTES_INDEX]
+                    )
+                    success.append({
+                        'response': _("-- user '{username}' successfully added to exception list.").format(
+                            username=db_user.username
+                        )
+                    })
+
+    else:
+        errors.append({
+            'response': _('-- File is not attached.')
+        })
+
+    results = {
+        'errors': errors,
+        'warnings': warnings,
+        'success': success
+    }
+
+    return JsonResponse(results)
