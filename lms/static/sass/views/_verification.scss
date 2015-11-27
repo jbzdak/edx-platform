@@ -829,13 +829,14 @@
 
     // indiv slides - review
     #wrapper-review {
-      color: #000000;
+      color: $black;
 
       .page-title {
-          border-bottom: 2px solid #cccccc;
+          border-bottom: 2px solid $darkGrey;
           padding-bottom: 15px;
           margin-bottom: 20px;
           font-weight: bold;
+          text-transform: inherit;
         }
 
       .review {
@@ -851,7 +852,7 @@
 	        margin-top: 0;
             line-height: 22px;
             font-weight: 600;
-            color: #000000;
+            color: $black;
           }
 
           .purchase {
@@ -879,11 +880,20 @@
         overflow: auto;
         margin-bottom: 15px;
         margin-top: 10px;
+        padding-bottom: 5px;
+
+        .payment-button {
+          padding: 8px 20px;
+          min-width: 200px;
+          &.is-selected {
+            background: #0079BC !important;
+          }
+        }
       }
 
       hr {
         border-width: 2px;
-        margin: 1.5em 0;
+        margin: 1.4em 0;
       }
     }
 
@@ -892,7 +902,7 @@
 
         p {
           line-height: 22px;
-          color: #000000;
+          color: $black;
         }
         .photo-requirement {
           position: relative;
@@ -904,6 +914,7 @@
 
             h6 {
               font-weight: bold;
+              color: #444444;
             }
 
           &:before {
